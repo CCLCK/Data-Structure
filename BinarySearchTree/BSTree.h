@@ -17,6 +17,7 @@ struct BSTreeNode
 	K val;
 };
 
+
 template <class K>
 class BSTree
 {
@@ -25,7 +26,7 @@ public:
 	BSTree()
 		:_root(nullptr)
 	{}
-
+	
 	//bool insert(const K& key);
 	//bool Erase(const K& key);
 	//Node* find(const K& key);
@@ -52,25 +53,7 @@ public:
 		_Destroy(_root);
 		_root = nullptr;
 	}
-	Node* _find(Node*& root, const K& key)
-	{
-		if (root == nullptr)
-		{
-			return nullptr;
-		}
-		if (key > root->val)
-		{
-			_find(root->right,key);
-		}
-		else if (key < root->val)
-		{
-			_find(root->left,key);
-		}
-		else
-		{
-			return root;
-		}
-	}
+	
 	Node* find(const K& key)
 	{
 		return _find(_root, key);
@@ -96,26 +79,7 @@ public:
 		return nullptr;
 	}*/
 
-	bool _Insert(Node*& root, const K& key)
-	{
-		if (root == nullptr)
-		{
-			root = new Node(key);
-			return true;
-		}
-		if (key < root->val)//key小于当前节点的值,去左边找
-		{
-			_Insert(root->left, key);
-		}
-		else if (key > root->val)
-		{
-			_Insert(root->right, key);
-		}
-		else
-		{
-			return false;
-		}
-	}
+	
 	bool Insert(const K& key)//找到位置然后插入
 	{
 		return _Insert(_root, key);
@@ -157,6 +121,12 @@ public:
 	//	}
 	//	return true;
 	//}
+	bool EraseR(const K& key)
+	{
+		//找到再删
+		return _EraseR(_root, key);
+	}
+	
 
 	bool Erase(const K& key)
 	{
@@ -179,25 +149,40 @@ public:
 			{
 				if (cur->left == nullptr)
 				{
-					if (key < parent->val)
+					if (cur == _root)
 					{
-						parent->left = cur->right;
+						_root = cur->right;
 					}
 					else
 					{
-						parent->right = cur->right;
+						if (key < parent->val)
+						{
+							parent->left = cur->right;
+						}
+						else
+						{
+							parent->right = cur->right;
+						}
 					}
 					delete cur;
+					return true;
 				}
 				else if (cur->right == nullptr)
 				{
-					if (key < parent->val)//在父亲的左边，是父亲的左孩子
+					if (cur == _root)
 					{
-						parent->left = cur->left;
+						_root = _root->left;
 					}
 					else
 					{
-						parent->right = cur->left;
+						if (key < parent->val)//在父亲的左边，是父亲的左孩子
+						{
+							parent->left = cur->left;
+						}
+						else
+						{
+							parent->right = cur->left;
+						}
 					}
 					delete cur;
 					return true;
@@ -216,12 +201,22 @@ public:
 					}
 					cur->val = minRight->val;
 					//去删除minRight
-					minRightParent->left = minRight->right;//minRight左子树为空
+
+					if (minRightParent->left = minRight)
+					{
+						minRightParent->left = minRight->right;
+					}
+					else if (minRightParent->right = minRight)
+					{
+						minRightParent->right = minRight->right;
+					}
+					//minRightParent->left = minRight->right;//minRight左子树为空  不能这么写 如果只有三个节点呢？ 所以必须判断是在父亲节点的左边还是右边！
 					delete minRight;
 					return true;
 				}
 			}
 		}
+		return false;
 	}
 	void InOrder()
 	{
@@ -230,6 +225,100 @@ public:
 	}
 	
 private:	
+	bool _EraseR(Node*& root, const K& key)//递归必须传引用 传引用,即传实参相当于多了个parent指针
+	{
+		if (root == nullptr)
+		{
+			return false;
+		}
+		if (key < root->val)
+		{
+			_EraseR(root->left, key);
+		}
+		else if (key > root->val)
+		{
+			_EraseR(root->right, key);
+		}
+		else//找到了准备去删
+		{
+			if (root->left == nullptr)
+			{
+				Node* tmp = root;
+				root = root->right;
+				delete tmp;
+				return true;
+			}
+			else if (root->right == nullptr)
+			{
+				Node* tmp = root;
+				root = root->left;
+				delete tmp;
+				return true;
+			}
+			else
+			{
+				Node* minRight = root->right;
+				Node* minRightParent = root;
+				while (minRight->left)
+				{
+					minRightParent = minRight;
+					minRight = minRightParent->left;
+				}
+				root->val = minRight->val;
+				if (minRightParent->left == minRight)
+				{
+					minRightParent->left = minRight->right;
+				}
+				else
+				{
+					minRightParent->right = minRight->right;
+				}
+				delete minRight;
+				minRight = nullptr;
+				return true;
+			}
+		}
+
+	}
+	bool _Insert(Node*& root, const K& key)
+	{
+		if (root == nullptr)
+		{
+			root = new Node(key);
+			return true;
+		}
+		if (key < root->val)//key小于当前节点的值,去左边找
+		{
+			_Insert(root->left, key);
+		}
+		else if (key > root->val)
+		{
+			_Insert(root->right, key);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	Node* _find(Node*& root, const K& key)
+	{
+		if (root == nullptr)
+		{
+			return nullptr;
+		}
+		if (key > root->val)
+		{
+			_find(root->right, key);
+		}
+		else if (key < root->val)
+		{
+			_find(root->left, key);
+		}
+		else
+		{
+			return root;
+		}
+	}
 	Node* _root;
 	void _Destroy(Node* node)
 	{
@@ -306,6 +395,26 @@ void test3()
 	bst.Insert(2);
 	bst.Insert(1);
 	bst.Insert(3);
-	//bst.Erase(1);
+	bst.Erase(1);
+	bst.Erase(2);
+	bst.Erase(3);
+	bst.Erase(4);
+	bst.Insert(3);
+	bst.InOrder();
+}
+
+
+void test4()
+{
+	BSTree<int> bst;
+	bst.Insert(4);
+	bst.Insert(2);
+	bst.Insert(1);
+	bst.Insert(3);
+	bst.EraseR(1);
+	bst.EraseR(2);
+	bst.EraseR(3);
+	bst.EraseR(4);
+	bst.Insert(3);
 	bst.InOrder();
 }
