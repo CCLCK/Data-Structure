@@ -109,6 +109,7 @@ public:
 				{
 					//左右双旋
 					RotateLR(cur_parent);
+
 				}
 				else if (cur_parent->_bf == 2 && cur->_bf == -1)
 				{
@@ -129,7 +130,7 @@ public:
 	void RotateR(Node* parent)
 	{
 		Node* subL = parent->_left;
-		Node* subLR = parent->_right;
+		Node* subLR = subL->_right;
 		//subLR可能为空
 		//subL可能为根节点
 		//subL上面还有结点
@@ -195,13 +196,62 @@ public:
 	}
 	void RotateLR(Node* parent)
 	{
-		RotateL(parent);
+		//针对左子树的折线
+		Node* subL = parent->_left;
+		Node* subLR = subL->_right;
+		int bf = subLR->_bf;	
+		RotateL(parent->_left);
 		RotateR(parent);
+
+		if (bf == -1)
+		{
+			parent->_bf = 1;
+			subLR->_bf = subL->_bf = 0;
+		}
+		else if (bf == 1)
+		{
+			subL->_bf = -1;
+			subLR->_bf = parent->_bf = 0;
+		}
+		else if (bf == 0)
+		{
+			parent->_bf = 0;
+			subL->_bf = subLR->_bf = 0;
+		}
+		else
+		{
+			assert(false);
+		}
 	}
 	void RotateRL(Node* parent)
 	{
-		RotateR(parent);
+		//针对右子树的折线
+		Node* subR = parent->_right;
+		Node* subRL = subR->_left;
+		int bf = subRL->_bf;
+		RotateR(parent->_right);
 		RotateL(parent);
+		if (bf == -1)
+		{
+			subR->_bf = 1;
+			parent->_bf = subRL->_bf = 0;
+		}
+		else if (bf == 1)
+		{
+			parent->_bf = -1;
+			subR->_bf = subRL->_bf = 0;
+		}
+		else if (bf == 0)//有三个节点时的特殊情况
+		{
+			subR->_bf = 0;
+			subRL->_bf = 0;
+			parent->_bf = 0;
+		}
+		else
+		{
+			assert(false);
+		}
+		
 	}
 	void InOrder()
 	{
@@ -218,7 +268,46 @@ public:
 		cout << (root->_kv).first << " ";
 		_Inorder(root->_right);
 	}
+	int Height(Node* root)
+	{
+		return _Height(root);
+	}
+
+	int _Height(Node* root)
+	{
+		if (root == nullptr)
+		{
+			return 0;
+		}
+		int LHeight = _Height(root->_left) ;
+		int RHeight = _Height(root->_right) ;
+		return ((LHeight > RHeight) ? LHeight+1 : RHeight+1) ;
+	}
+
 	
+	bool IsBalance()
+	{
+		
+		return _IsBalance(_root);
+	}
+	bool _IsBalance(Node* root)
+	{
+		if (root == nullptr)
+		{
+			return true;
+		}
+		int LHeight = Height(root->_left);
+		int RHeight = Height(root->_right);
+		if (root->_bf != (RHeight - LHeight))
+		{
+			cout << "平衡因子失常" << endl;
+			return false;
+		}
+		return abs(LHeight - RHeight) < 2
+			&& _IsBalance(root->_left)
+			&& _IsBalance(root->_right);
+		
+	}
 private:
 	Node* _root;
 };
@@ -226,13 +315,19 @@ private:
 void TestAVLTree()
 {
 	AVLTree<int, int> t1;
-	t1.Insert(make_pair(1, 1));
+	t1.Insert(make_pair(4, 1));
 	t1.Insert(make_pair(2, 2));
-	t1.Insert(make_pair(3, 3));
-	t1.Insert(make_pair(4, 4));
-	t1.Insert(make_pair(5, 5));
-	t1.Insert(make_pair(6, 6));
+	t1.Insert(make_pair(6, 3));
+	t1.Insert(make_pair(1, 4));
+	t1.Insert(make_pair(3, 5));
+	t1.Insert(make_pair(5, 6));
+	t1.Insert(make_pair(15, 7));
+	t1.Insert(make_pair(7, 8));
+	t1.Insert(make_pair(16, 9));
+	t1.Insert(make_pair(14, 10));
 	t1.InOrder();
+
+	cout << t1.IsBalance() << endl;
 }
 
 
