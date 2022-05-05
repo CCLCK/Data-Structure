@@ -606,23 +606,27 @@ public:
 		}
 		Node* delParent = del->_parent;
 		
-		if (delParent->_left == del)
+		if (delParent->_left == del)//到这里的都是叶子
 		{
 			delParent->_left = del->_right;
-			if (del->_right)
+		
+			/*if (del->_right)
 			{
+				cout << "del->_right非空" << endl;
 				del->_right->_parent = delParent;
-			}
+			}*/
 			delete del;
 			del = nullptr;
 		}
 		else
 		{
 			delParent->_right = del->_right;
-			if (del->_right)
+		
+		/*	if (del->_right)
 			{
+				cout << "del->_right非空" << endl;
 				del->_right->_parent = delParent;
-			}
+			}*/
 
 			delete del;
 			del = nullptr;
@@ -712,7 +716,7 @@ void test3()//基本删除测试
 void test4()//随机删除测试
 {
 	RBTree<int, int> rb;
-	const int n = 10000;
+	const int n =10000;
 	vector<int>v;
 	v.reserve(n);
 	srand(time(0));
