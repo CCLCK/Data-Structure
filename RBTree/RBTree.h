@@ -329,6 +329,7 @@ public:
 		{
 			_root = cur->_left;
 			_root->_col = BLACK;
+			_root->_parent = nullptr;
 			delete cur;
 			cur = nullptr;
 			return true;
@@ -337,6 +338,7 @@ public:
 		{
 			_root = cur->_right;
 			_root->_col = BLACK;
+			_root->_parent = nullptr;
 			delete cur;
 			cur = nullptr;
 			return true;
