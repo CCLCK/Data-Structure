@@ -57,35 +57,35 @@ namespace close_hash
 	class HashTable
 	{
 	public:
-				HashData<K, V>* Find(const K& key)
+		HashData<K, V>* Find(const K& key)
+		{
+			if (_tables.size() == 0)
+			{
+				return nullptr;
+			}
+		
+			Hash hash;
+			size_t start = hash(key) % _tables.size();
+			size_t i = 0;
+			size_t index = start + i;
+			while (_tables[index]._status != EMPTY)
+			{
+				if (_tables[index]._kv.first == key
+					&& _tables[index]._status == EXIST)
 				{
-					if (_tables.size() == 0)
-					{
-						return nullptr;
-					}
-		
-					Hash hf;
-					size_t start = hf(key) % _tables.size();
-					size_t i = 0;
-					size_t index = start + i;
-					while (_tables[index]._status != EMPTY)
-					{
-						if (hf(_tables[index]._kv.first) == hf(key)
-							&& _tables[index]._status == EXIST)
-						{
-							return &_tables[index];
-						}
-						else
-						{
-							++i;
-							//index = start + i; // 线性探测
-							index = start + i * i; // 二次探测
-							index %= _tables.size();
-						}
-					}
-		
-					return nullptr;
+					return &_tables[index];
 				}
+				else
+				{
+					++i;
+					//index = start + i; // 线性探测
+					index = start + i * i; // 二次探测
+					index %= _tables.size();
+				}
+			}
+		
+			return nullptr;
+		}
 		bool Insert(const pair<K, V>& kv)
 		{
 			Hash hash;
@@ -160,7 +160,7 @@ namespace close_hash
 	void test1()
 	{
 		//int a[] = { 5, 3, 100, 9999, 333, 14, 26, 34, 5};
-		int a[] = { 5, 7, 28, 35, 48 };
+		int a[] = { 5, 7, 28, 35, 48,1,2,3,4,5,6 };
 		HashTable<int, int> ht;
 		for (auto e : a)
 		{
@@ -184,5 +184,9 @@ namespace close_hash
 
 }
 
+namespace open_hash
+{
 
+
+}
 
